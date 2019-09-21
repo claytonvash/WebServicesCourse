@@ -2,6 +2,8 @@ package com.posiftm.course.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -10,6 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import com.posiftm.course.dto.UserDTO;
 import com.posiftm.course.entities.User;
 import com.posiftm.course.repositories.UserRepository;
 import com.posiftm.course.services.exceptions.DatabaseException;
@@ -21,14 +24,15 @@ public class UserService {
 	@Autowired
 	private UserRepository repository;
 
-	public List<User> findAll() {
-		return repository.findAll();
+	public List<UserDTO> findAll() {
+		List<User> list = repository.findAll();
+		return list.stream().map(e -> new UserDTO(e)).collect(Collectors.toList());
 	}
 
-	public User findById(Long id) {
+	public UserDTO findById(Long id) {
 		Optional<User> obj = repository.findById(id);
-		return obj.orElseThrow(() -> new ResourceNotFoundException(id));
-
+		User entity =  obj.orElseThrow(() -> new ResourceNotFoundException(id));
+		return new UserDTO(entity);
 	}
 
 	public User insert(User obj) {
