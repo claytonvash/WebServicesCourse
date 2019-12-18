@@ -2,7 +2,6 @@ package com.posiftm.course.services;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.posiftm.course.dto.UserDTO;
+import com.posiftm.course.dto.UserInsertDTO;
 import com.posiftm.course.entities.User;
 import com.posiftm.course.repositories.UserRepository;
 import com.posiftm.course.services.exceptions.DatabaseException;
@@ -36,8 +36,10 @@ public class UserService {
 		return new UserDTO(entity);
 	}
 
-	public User insert(User obj) {
-		return repository.save(obj);
+	public UserDTO insert(UserInsertDTO dto) {
+		User entity = dto.toEntity();
+		entity =  repository.save(entity);
+		return new UserDTO(entity);
 
 	}
 
