@@ -2,15 +2,28 @@ package com.posiftm.course.dto;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+
+import org.hibernate.validator.constraints.Length;
+
 import com.posiftm.course.entities.User;
 
 public class UserInsertDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private Long id;
+	
+	@NotEmpty(message = "This imput can't be empty")
+	@Length(min=5,max=80, message ="The length must be between 5 and 80")
 	private String name;
+	@NotEmpty(message = "This imput can't be empty")
+	@Email
 	private String email;
+	@NotEmpty(message = "This imput can't be empty")
+	@Length(min=5,max=20, message ="The length must be between 5 and 80")
 	private String phone;
+	@NotEmpty(message = "This imput can't be empty")
 	private String password;
 
 	public UserInsertDTO() {
