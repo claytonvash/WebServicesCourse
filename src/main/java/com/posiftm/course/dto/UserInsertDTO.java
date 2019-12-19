@@ -19,12 +19,15 @@ public class UserInsertDTO implements Serializable {
 	@NotEmpty(message = "This imput can't be empty")
 	@Length(min=5,max=80, message ="The length must be between 5 and 80")
 	private String name;
+	
 	@NotEmpty(message = "This imput can't be empty")
-	@Email
+	@Email(message = "ivalid email")
 	private String email;
+	
 	@NotEmpty(message = "This imput can't be empty")
 	@Length(min=5,max=20, message ="The length must be between 5 and 80")
 	private String phone;
+	
 	@NotEmpty(message = "This imput can't be empty")
 	private String password;
 
