@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.posiftm.course.dto.CredentialsDTO;
 import com.posiftm.course.dto.TokenDTO;
+import com.posiftm.course.entities.Order;
 import com.posiftm.course.entities.User;
 import com.posiftm.course.repositories.UserRepository;
 import com.posiftm.course.security.JWTUtil;
@@ -56,6 +57,13 @@ public class AuthService {
 	public void validadeSelfOrAdmin(Long userId) {
 		User user = authenticated();
 		if(user == null || (!user.getId().equals(userId) && !user.hasRole("ROLE_ADMIN")) ) {
+			throw new JWTAuthorizationException("Access denied");
+		}
+	
+	}
+	public void validadeOwnOrderAdmin(Order order) {
+		User user = authenticated();
+		if(user == null || (!user.getId().equals(order.getClient().getId()) && !user.hasRole("ROLE_ADMIN")) ) {
 			throw new JWTAuthorizationException("Access denied");
 		}
 	
