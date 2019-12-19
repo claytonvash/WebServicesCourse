@@ -9,6 +9,9 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,8 +24,8 @@ import com.posiftm.course.services.exceptions.DatabaseException;
 import com.posiftm.course.services.exceptions.ResourceNotFoundException;
 
 @Service
-public class UserService {
-	
+public class UserService implements UserDetailsService {
+
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
 
@@ -36,14 +39,14 @@ public class UserService {
 
 	public UserDTO findById(Long id) {
 		Optional<User> obj = repository.findById(id);
-		User entity =  obj.orElseThrow(() -> new ResourceNotFoundException(id));
+		User entity = obj.orElseThrow(() -> new ResourceNotFoundException(id));
 		return new UserDTO(entity);
 	}
 
 	public UserDTO insert(UserInsertDTO dto) {
 		User entity = dto.toEntity();
 		entity.setPassword(passwordEncoder.encode(dto.getPassword()));
-		entity =  repository.save(entity);
+		entity = repository.save(entity);
 		return new UserDTO(entity);
 
 	}
@@ -54,20 +57,21 @@ public class UserService {
 
 		} catch (EmptyResultDataAccessException e) {
 			throw new ResourceNotFoundException(id);
-		}catch (DataIntegrityViolationException e) {
+		} catch (DataIntegrityViolationException e) {
 			throw new DatabaseException(e.getMessage());
 		}
 
 	}
+
 	@Transactional
 	public UserDTO update(Long id, UserDTO dto) {
- 
+
 		try {
-		User entity = repository.getOne(id);
-		updateData(entity, dto);
-		entity = repository.save(entity);
-		return new UserDTO(entity);
-		}catch (EntityNotFoundException e) {
+			User entity = repository.getOne(id);
+			updateData(entity, dto);
+			entity = repository.save(entity);
+			return new UserDTO(entity);
+		} catch (EntityNotFoundException e) {
 			throw new ResourceNotFoundException(id);
 		}
 	}
@@ -77,5 +81,15 @@ public class UserService {
 		entity.setEmail(dto.getEmail());
 		entity.setPhone(dto.getPhone());
 
+	}
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+		User user = repository.findByEmail(username);
+		if (user == null) {
+			throw new UsernameNotFoundException(username);
+		}
+		return user;
 	}
 }
