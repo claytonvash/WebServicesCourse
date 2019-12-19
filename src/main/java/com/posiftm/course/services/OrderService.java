@@ -15,6 +15,7 @@ import com.posiftm.course.entities.Order;
 import com.posiftm.course.entities.OrderItem;
 import com.posiftm.course.entities.User;
 import com.posiftm.course.repositories.OrderRepository;
+import com.posiftm.course.repositories.UserRepository;
 import com.posiftm.course.services.exceptions.ResourceNotFoundException;
 
 @Service
@@ -25,6 +26,9 @@ public class OrderService {
 
 	@Autowired
 	private AuthService authService;
+
+	@Autowired
+	private UserRepository userRepository;
 
 	public List<OrderDTO> findAll() {
 		List<Order> list = repository.findAll();
@@ -38,11 +42,12 @@ public class OrderService {
 		return new OrderDTO(entity);
 	}
 
-	public List<OrderDTO> findByClient(){
+	public List<OrderDTO> findByClient() {
 		User client = authService.authenticated();
 		List<Order> list = repository.findByClient(client);
 		return list.stream().map(e -> new OrderDTO(e)).collect(Collectors.toList());
 	}
+
 	@Transactional(readOnly = true)
 	public List<OrderItemDTO> findItems(Long id) {
 		Order order = repository.getOne(id);
@@ -50,4 +55,13 @@ public class OrderService {
 		Set<OrderItem> set = order.getItems();
 		return set.stream().map(e -> new OrderItemDTO(e)).collect(Collectors.toList());
 	}
+
+	@Transactional(readOnly = true)
+	public List<OrderDTO> findByClientId(Long clientId) {
+		User client = userRepository.getOne(clientId);
+		List<Order> list = repository.findByClient(client);
+		return list.stream().map(e -> new OrderDTO(e)).collect(Collectors.toList());
+
+	}
+
 }
