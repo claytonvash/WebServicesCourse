@@ -1,45 +1,55 @@
 package com.posiftm.course.entities;
 
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /*import com.fasterxml.jackson.annotation.JsonIgnore;*/
 
 @Entity
 @Table(name = "tb_user")
 
-public class User implements Serializable{
-	
+public class User implements UserDetails {
+
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String name;
-	
+
 	@Column(unique = true)
 	private String email;
 	private String phone;
 	private String password;
-	
-	/*@JsonIgnore*/
+
+	/* @JsonIgnore */
 	@OneToMany(mappedBy = "client")
 	private List<Order> orders = new ArrayList<>();
-	
-	
-	public User () {
-		
-	}
 
+	@ManyToMany
+	@JoinTable(name = "tb_user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<Role> roles = new HashSet<>();
+
+	public User() {
+
+	}
 
 	public User(Long id, String name, String email, String phone, String password) {
 		super();
@@ -48,64 +58,56 @@ public class User implements Serializable{
 		this.email = email;
 		this.phone = phone;
 		this.password = password;
-		
 
 	}
-
 
 	public Long getId() {
 		return id;
 	}
 
-
 	public void setId(Long id) {
 		this.id = id;
 	}
-
 
 	public String getName() {
 		return name;
 	}
 
-
 	public void setName(String name) {
 		this.name = name;
 	}
-
 
 	public String getEmail() {
 		return email;
 	}
 
-
 	public void setEmail(String email) {
 		this.email = email;
 	}
-
 
 	public String getPhone() {
 		return phone;
 	}
 
-
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
-
 
 	public String getPassword() {
 		return password;
 	}
 
-
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
+
 	public List<Order> getOrders() {
 		return orders;
 	}
 
+	public Set<Role> getRoles() {
+		return roles;
+	}
 
 	@Override
 	public int hashCode() {
@@ -114,7 +116,6 @@ public class User implements Serializable{
 		result = prime * result + (int) (id ^ (id >>> 32));
 		return result;
 	}
-
 
 	@Override
 	public boolean equals(Object obj) {
@@ -129,6 +130,41 @@ public class User implements Serializable{
 			return false;
 		return true;
 	}
-	
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+
+		return roles;
+	}
+
+	@Override
+	public String getUsername() {
+
+		return email;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		// TODO Auto-generated method stub
+		return true;
+	}
 
 }
