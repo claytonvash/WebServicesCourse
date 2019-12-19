@@ -1,6 +1,7 @@
 package com.posiftm.course.resources;
 
 import java.net.URI;
+import java.util.List;
 
 import javax.validation.Valid;
 
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.posiftm.course.dto.CategoryDTO;
 import com.posiftm.course.dto.ProductCategoriesDTO;
 import com.posiftm.course.dto.ProductDTO;
 import com.posiftm.course.services.ProductService;
@@ -91,5 +93,25 @@ public class ProductResource {
 		service.delete(id);
 		return ResponseEntity.noContent().build();
 
+	}
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PutMapping(value="/{id}/addCategory")
+	public ResponseEntity<Void> addCategory(@PathVariable Long id, @RequestBody CategoryDTO dto){
+		service.addCategory(id, dto);
+		return ResponseEntity.noContent().build();
+	}	
+
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PutMapping(value="/{id}/removeCategory")
+	public ResponseEntity<Void> removeCategory(@PathVariable Long id, @RequestBody CategoryDTO dto){
+		service.removeCategory(id, dto);
+		return ResponseEntity.noContent().build();
+	}	
+
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PutMapping(value="/{id}/setCategories")
+	public ResponseEntity<Void> setCategories(@PathVariable Long id, @RequestBody List<CategoryDTO> dto){
+		service.setCategories(id, dto);
+		return ResponseEntity.noContent().build();
 	}
 }
