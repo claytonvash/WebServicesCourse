@@ -1,8 +1,10 @@
 package com.posiftm.course.services;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -22,6 +24,7 @@ import com.posiftm.course.entities.Product;
 import com.posiftm.course.repositories.CategoryRepository;
 import com.posiftm.course.repositories.ProductRepository;
 import com.posiftm.course.services.exceptions.DatabaseException;
+import com.posiftm.course.services.exceptions.ParamFormatException;
 import com.posiftm.course.services.exceptions.ResourceNotFoundException;
 
 @Service
@@ -32,12 +35,34 @@ public class ProductService {
 	
 	@Autowired
 	private CategoryRepository categoryRepository;
+			
+		public Page<ProductDTO> findByNameCategoryPaged(String name, String categoriesStr, Pageable pageable) {
+			Page<Product> list;
+
+			if (categoriesStr.equals("")) {
+				list = repository.findByNameContainingIgnoreCase(name, pageable);
+			} else {
+				List<Long> ids = parseIds(categoriesStr);
+				List<Category> categories = ids.stream().map(id -> categoryRepository.getOne(id)).collect(Collectors.toList());
+				list = repository.findByNameContainingIgnoreCaseAndCategoriesIn(name, categories, pageable);
+			}
+			return list.map(e -> new ProductDTO(e));
+		}
 	
-	public Page<ProductDTO> findAllPaged(String name, Pageable pageable){
-		Page<Product> list = repository.findByNameContainingIgnoreCase(name, pageable);		
-		return list.map(e -> new ProductDTO(e));
+	private List<Long> parseIds(String categoriesStr) {
+		String[] idsArray = categoriesStr.split(",");
+		List<Long> list = new ArrayList<>();
+		for (String idStr : idsArray) {
+			try {
+				list.add(Long.parseLong(idStr));
+			} catch (Exception e) {
+				throw new ParamFormatException("Invalid categories format");
+			}
+		}
+
+		return list;
 	}
-	
+
 	public ProductDTO findById(Long id) {
 		Optional<Product> obj = repository.findById(id);		
 		Product entity = obj.orElseThrow(() -> new ResourceNotFoundException(id));

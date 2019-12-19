@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import com.posiftm.course.services.exceptions.DatabaseException;
 import com.posiftm.course.services.exceptions.JWTAuthenticationException;
 import com.posiftm.course.services.exceptions.JWTAuthorizationException;
+import com.posiftm.course.services.exceptions.ParamFormatException;
 import com.posiftm.course.services.exceptions.ResourceNotFoundException;
 
 @ControllerAdvice
@@ -73,5 +74,15 @@ public class ResourceExceptionHandler {
 				request.getRequestURI());
 		return ResponseEntity.status(status).body(err);
 	}
+	
+	@ExceptionHandler(DatabaseException.class)
+	public ResponseEntity<StandartError> paramFormat(ParamFormatException e, HttpServletRequest request) {
+		String error = "Format error";
+		HttpStatus status = HttpStatus.BAD_REQUEST;
+		StandartError err = new StandartError(Instant.now(), status.value(), error, e.getMessage(),
+				request.getRequestURI());
 
+		return ResponseEntity.status(status).body(err);
+
+}
 }

@@ -14,7 +14,7 @@ import com.posiftm.course.entities.Product;
 public interface ProductRepository extends JpaRepository<Product, Long>{
 	
 	@Transactional(readOnly = true)
-	@Query("SELECT obj FROM Product obj WHERE LOWER(obj.name) LIKE LOWER(CONCATE('%',:name,'%'))")
+	@Query("SELECT obj FROM Product obj INNER JOIN obj.categories cats WHERE LOWER(obj.name) LIKE LOWER(CONCATE('%',:name,'%')) AND cats IN :categories")
 	Page<Product> findByNameContainingIgnoreCaseAndCategoriesIn(String name,List<Category> categories, Pageable pageable);
 	
 	@Transactional(readOnly = true)
